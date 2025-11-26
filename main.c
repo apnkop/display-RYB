@@ -4,7 +4,7 @@
 #include <display.c>
 #define HEIGHT 240
 #define WIDTH 240
-#define NUMBER_OF_MOVES_PER_FRAME 1000
+#define NUMBER_OF_MOVES_PER_FRAME 1000 // this draws a 1000 frames before pushing one to the display. This will be fixed
 #define NUMBER_OF_CHILDS 1
 #define FRAME_BYTES (HEIGHT * WIDTH * sizeof(uint16_t))
 
