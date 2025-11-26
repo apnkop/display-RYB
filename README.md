@@ -5,5 +5,5 @@ The libpynq source is [here](https://pynq.tue.nl/libpynq/5EWC0-2023-v0.2.6/index
 ## To do:
  - [x] update write command.
  - [x] speed up display.
- -[] prevent display write to limit input.
- -[] rewrite spi write command, by removing the sleep loops.
+ - [] prevent display write to limit input.
+ - [] rewrite spi write command, by removing the sleep loops.
