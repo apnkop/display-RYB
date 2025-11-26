@@ -112,6 +112,6 @@ int main (void){
 	}
 	buttons_destroy();
 	switches_destroy();
-        pynq_destroy();
+	pynq_destroy();
 }
 

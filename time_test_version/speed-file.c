@@ -4,26 +4,32 @@
 #include <display.c>
 #define HEIGHT 240
 #define WIDTH 240
-#define NUMBER_OF_MOVES_PER_FRAME 1000
+#define NUMBER_OF_MOVES_PER_FRAME 10
 #define NUMBER_OF_CHILDS 1
 #define FRAME_BYTES (HEIGHT * WIDTH * sizeof(uint16_t))
 #include <time.h>
 
-void write_files_multi(char type, char function, int size_of_arr, uint16_t *store_array){
+void write_files_multi(uint16_t store_array[WIDTH][HEIGHT){
 	char filename[] = "/dev/shm/framebuffer.tmp"
 	FILE *file = fopen(filename, "w");
-	for (int i =0; i <size_of_arr; i++){
-		fprintf(file, "%i%s", store_array, ", "); 
+	for (int x = 0; x <WIDTH; x++){
+		for (int y = 0; y<HEIGHT; y++){
+			fprintf(file, "%hu%s", store_array[x][y], " ");
+		}
+		fprintf("\n");
 	}
+	fclose(file);
+	rename(const char "/dev/shm/framebuffer.tmp", const char "/dev/shm/framebuffer");
 }
-void read_full(int fd, void *buf, size_t n) {
-    uint8_t *p = (uint8_t*)buf;
-    size_t left = n;
-    while (left > 0) {
-        ssize_t r = read(fd, p, left);
-        p += r;
-        left -= (size_t)r;
-    }
+void read_files_multi(uint16_t *store_array) {
+	char filename[] = "/dev/shm/framebuffer";
+	FILE *file = fopen(filename, "r");
+	for (int x = 0; x <WIDTH; x ++){
+		for(int y =0; y<HEIGHT; y++){
+			fscanf(file, " %hu", store_array[x][y]);
+		}
+	}
+	fclose(file);
 }
 
 void displayDrawMultiPixelsv2(display_t *display, uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, uint16_t *colors) {
@@ -57,11 +63,10 @@ int main (void){
 	buttons_init();
         int fork_num = 0;
         int fork_state = 1;
-	int pipe_frame_transfer[2];
-	pipe(pipe_frame_transfer);
+	write_files_multi(framebuffer);
         for (int i =0; i <NUMBER_OF_CHILDS; i ++){
-		sleep_msec(100);
-                if (fork_state != 0){
+			sleep_msec(100);
+            	if (fork_state != 0){
                         fork_state = fork();
                         fork_num = fork_num + 1;
                                 if (fork_state != 0){
@@ -97,11 +102,7 @@ int main (void){
 				//printf("%s%i%s%lf%s%lf\n", "button state = ", b0, " and time since last check is: ", elapsed_per_button,"time per frame", elapsed_per_frame_expected);
 			}
 			memcpy(framebuffer_drawn, framebuffer, sizeof(framebuffer_drawn));
-			fork_state = fork();
-			if (fork_state == 0){
-				write_full(pipe_frame_transfer[1], framebuffer_drawn, FRAME_BYTES);
-				_Exit(0);
-			}
+			write_files_multi(framebuffer_drawn);
 			clock_gettime(CLOCK_MONOTONIC, &end);
 			double elapsed_per_frame = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 			printf("frame drawn expeted time was, %lf while the actual time : %lf\n", elapsed_per_frame_expected, elapsed_per_frame);
@@ -113,7 +114,7 @@ int main (void){
 		display_init(&display);
 		close(pipe_frame_transfer[1]);
 		while(1){
-			read_full(pipe_frame_transfer[0], framebuffer_drawn, FRAME_BYTES);
+			read_files_multi(framebuffer_drawn);
 	                display_flush(&display, (uint16_t*)framebuffer_drawn);
         	}
 		display_destroy(&display);
@@ -121,7 +122,6 @@ int main (void){
 	}
 	buttons_destroy();
 	switches_destroy();
-//	display_destroy(&display);
-        pynq_destroy();
+	pynq_destroy();
 }
 
