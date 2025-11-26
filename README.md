@@ -8,4 +8,4 @@ The libpynq source is [here](https://pynq.tue.nl/libpynq/5EWC0-2023-v0.2.6/index
  - [x] prevent display write to limit input.
  - [] rewrite spi write command, by removing the sleep loops.
 ## more notes
-- the previous version of the code, that is still slow is in the subfolder
+- the previous version of the code, that is still slow is in a form in the time folder, to compare the speedup
