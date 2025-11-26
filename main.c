@@ -48,7 +48,7 @@ int main (void){
 	uint16_t framebuffer[HEIGHT][WIDTH];
 	for(int y = 0; y < HEIGHT; y++){ //set framebuffer black
 		for(int x =0; x < WIDTH; x++){
-			framebuffer[y][x] = 0x0000;
+			framebuffer[y][x] = 0;
 		}
 	}
 	uint16_t framebuffer_drawn[HEIGHT][WIDTH];
