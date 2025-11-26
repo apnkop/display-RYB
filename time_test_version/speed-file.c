@@ -4,31 +4,22 @@
 #include <display.c>
 #define HEIGHT 240
 #define WIDTH 240
-#define NUMBER_OF_MOVES_PER_FRAME 10
+#define NUMBER_OF_MOVES_PER_FRAME 10 //drawn in the framebuffer, the display is still a lot slower.
 #define NUMBER_OF_CHILDS 1
 #define FRAME_BYTES (HEIGHT * WIDTH * sizeof(uint16_t))
 #include <time.h>
 
-void write_files_multi(uint16_t store_array[WIDTH][HEIGHT){
-	char filename[] = "/dev/shm/framebuffer.tmp"
+void write_files_multi(uint16_t store_array[WIDTH][HEIGHT]){
+	char filename[] = "/dev/shm/framebuffer.tmp";
 	FILE *file = fopen(filename, "w");
-	for (int x = 0; x <WIDTH; x++){
-		for (int y = 0; y<HEIGHT; y++){
-			fprintf(file, "%hu%s", store_array[x][y], " ");
-		}
-		fprintf("\n");
-	}
+	fwrite(store_array, sizeof(uint16_t), WIDTH*HEIGHT, file);//dumps the binary to the file, decrasing the time it takes by a factor 60.
 	fclose(file);
-	rename(const char "/dev/shm/framebuffer.tmp", const char "/dev/shm/framebuffer");
+	rename("/dev/shm/framebuffer.tmp", "/dev/shm/framebuffer");
 }
-void read_files_multi(uint16_t *store_array) {
+void read_files_multi(uint16_t store_array[WIDTH][HEIGHT]) {
 	char filename[] = "/dev/shm/framebuffer";
-	FILE *file = fopen(filename, "r");
-	for (int x = 0; x <WIDTH; x ++){
-		for(int y =0; y<HEIGHT; y++){
-			fscanf(file, " %hu", store_array[x][y]);
-		}
-	}
+	FILE *file = fopen(filename, "r"); //reads the binary data.
+	fread(store_array, sizeof(uint16_t), WIDTH*HEIGHT, file);
 	fclose(file);
 }
 
@@ -63,11 +54,11 @@ int main (void){
 	buttons_init();
         int fork_num = 0;
         int fork_state = 1;
-	write_files_multi(framebuffer);
-        for (int i =0; i <NUMBER_OF_CHILDS; i ++){
+	write_files_multi(framebuffer); // ensures that if the display program starts to fast, it does not segfault
+        for (int i =0; i <NUMBER_OF_CHILDS; i ++){ //needed for fork
 			sleep_msec(100);
             	if (fork_state != 0){
-                        fork_state = fork();
+                        fork_state = fork(); //the fork returns a number to the parent (or master, as later defined), an 0 to a child.
                         fork_num = fork_num + 1;
                                 if (fork_state != 0){
                                 	printf("%s%i%s\n", "fork ", fork_num, " started");
@@ -79,16 +70,14 @@ int main (void){
 	}
 	switch (fork_num){
 	case 0:
-		close(pipe_frame_transfer[0]);
 		struct timespec start, start_button, end_button, end;
-		nice(-20);
         	while(1){
 			clock_gettime(CLOCK_MONOTONIC, &start);
 			double elapsed_per_frame_expected = 0;
 			for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
 				clock_gettime(CLOCK_MONOTONIC, &start_button);
                 		memmove(&framebuffer[1][0], &framebuffer[0][0], (HEIGHT-1)*WIDTH*sizeof(uint16_t)); //move famebuffer from 0 to end, per row.
-                		memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t));
+                		memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t)); //set parial framebuffer.
                 		b0 = get_button_state(0); //selfexplenetary
                 		if (b0 == 0){
                 		        	framebuffer[0][0] = 0xffff;
@@ -107,12 +96,10 @@ int main (void){
 			double elapsed_per_frame = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 			printf("frame drawn expeted time was, %lf while the actual time : %lf\n", elapsed_per_frame_expected, elapsed_per_frame);
         	}
-		close(pipe_frame_transfer[1]);
 		break;
 	case 1:
 		display_t display;
 		display_init(&display);
-		close(pipe_frame_transfer[1]);
 		while(1){
 			read_files_multi(framebuffer_drawn);
 	                display_flush(&display, (uint16_t*)framebuffer_drawn);

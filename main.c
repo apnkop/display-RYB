@@ -4,28 +4,22 @@
 #include <display.c>
 #define HEIGHT 240
 #define WIDTH 240
-#define NUMBER_OF_MOVES_PER_FRAME 1000 // this draws a 1000 frames before pushing one to the display. This will be fixed
+#define NUMBER_OF_MOVES_PER_FRAME 10 //drawn in the framebuffer, the display is still a lot slower.
 #define NUMBER_OF_CHILDS 1
 #define FRAME_BYTES (HEIGHT * WIDTH * sizeof(uint16_t))
 
-void write_full(int fd, const void *buf, size_t n) {
-    const uint8_t *p = (const uint8_t*)buf;
-    size_t left = n;
-    while (left > 0) {
-        ssize_t w = write(fd, p, left);
-        p += w;
-        left -= (size_t)w;
-    }
+void write_files_multi(uint16_t store_array[WIDTH][HEIGHT]){
+	char filename[] = "/dev/shm/framebuffer.tmp";
+	FILE *file = fopen(filename, "w");
+	fwrite(store_array, sizeof(uint16_t), WIDTH*HEIGHT, file);//dumps the binary to the file, decrasing the time it takes by a factor 60.
+	fclose(file);
+	rename("/dev/shm/framebuffer.tmp", "/dev/shm/framebuffer");
 }
-
-void read_full(int fd, void *buf, size_t n) {
-    uint8_t *p = (uint8_t*)buf;
-    size_t left = n;
-    while (left > 0) {
-        ssize_t r = read(fd, p, left);
-        p += r;
-        left -= (size_t)r;
-    }
+void read_files_multi(uint16_t store_array[WIDTH][HEIGHT]) {
+	char filename[] = "/dev/shm/framebuffer";
+	FILE *file = fopen(filename, "r"); //reads the binary data.
+	fread(store_array, sizeof(uint16_t), WIDTH*HEIGHT, file);
+	fclose(file);
 }
 
 void displayDrawMultiPixelsv2(display_t *display, uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, uint16_t *colors) {
@@ -35,7 +29,7 @@ void displayDrawMultiPixelsv2(display_t *display, uint16_t x, uint16_t y, uint16
 	uint16_t _y2 = _y1 + sizey;
 	uint16_t size = sizey*sizex;
 	spi_master_write_command(display, 0x2A); // set column(x) address
-	spi_master_write_addr(display, _x1, _x2); //it should be possible to update only the changed pixels, I dont feel like fixing it now.
+	spi_master_write_addr(display, _x1, _x2);
 	spi_master_write_command(display, 0x2B); // set Page(y) address
 	spi_master_write_addr(display, _y1, _y2);
 	spi_master_write_command(display, 0x2C); // memory write
@@ -59,12 +53,11 @@ int main (void){
 	buttons_init();
         int fork_num = 0;
         int fork_state = 1;
-	int pipe_frame_transfer[2];
-	pipe(pipe_frame_transfer);
-        for (int i =0; i <NUMBER_OF_CHILDS; i ++){
-		sleep_msec(100);
-                if (fork_state != 0){
-                        fork_state = fork();
+	write_files_multi(framebuffer); // ensures that if the display program starts to fast, it does not segfault
+        for (int i =0; i <NUMBER_OF_CHILDS; i ++){ //needed for fork
+			sleep_msec(100);
+            	if (fork_state != 0){
+                        fork_state = fork(); //the fork returns a number to the parent (or master, as later defined), an 0 to a child.
                         fork_num = fork_num + 1;
                                 if (fork_state != 0){
                                 	printf("%s%i%s\n", "fork ", fork_num, " started");
@@ -76,12 +69,10 @@ int main (void){
 	}
 	switch (fork_num){
 	case 0:
-		close(pipe_frame_transfer[0]);
-		nice(-20); //this requirs the program to run with sudo, but it increases the priority on linux, so it gets more cpu time./
         	while(1){
 			for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
                 		memmove(&framebuffer[1][0], &framebuffer[0][0], (HEIGHT-1)*WIDTH*sizeof(uint16_t)); //move famebuffer from 0 to end, per row.
-                		memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t));
+                		memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t)); //set parial framebuffer.
                 		b0 = get_button_state(0); //selfexplenetary
                 		if (b0 == 0){
                 		        	framebuffer[0][0] = 0xffff;
@@ -91,20 +82,14 @@ int main (void){
                 		}
 			}
 			memcpy(framebuffer_drawn, framebuffer, sizeof(framebuffer_drawn));
-			fork_state = fork();
-			if (fork_state == 0){
-				write_full(pipe_frame_transfer[1], framebuffer_drawn, FRAME_BYTES);
-				_Exit(0);
-			}
+			write_files_multi(framebuffer_drawn);
         	}
-		close(pipe_frame_transfer[1]);
 		break;
 	case 1:
 		display_t display;
 		display_init(&display);
-		close(pipe_frame_transfer[1]);
 		while(1){
-			read_full(pipe_frame_transfer[0], framebuffer_drawn, FRAME_BYTES);
+			read_files_multi(framebuffer_drawn);
 	                display_flush(&display, (uint16_t*)framebuffer_drawn);
         	}
 		display_destroy(&display);
