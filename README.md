@@ -1,2 +1,2 @@
 # display-RYB
-a fiaster version of the display for the Rock Your Baby project on TUE. 5EWC0
+This is a first version, not the final yet. So changes may still ocure. the updated version wil either be simplified, or a lot faster.
