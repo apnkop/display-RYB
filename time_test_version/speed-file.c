@@ -7,6 +7,7 @@
 #define NUMBER_OF_MOVES_PER_FRAME 10 //drawn in the framebuffer, the display is still a lot slower.
 #define NUMBER_OF_CHILDS 1
 #define FRAME_BYTES (HEIGHT * WIDTH * sizeof(uint16_t))
+#include <time.h>
 
 void write_files_multi(uint16_t store_array[WIDTH][HEIGHT]){
 	char filename[] = "/dev/shm/framebuffer.tmp";
@@ -16,8 +17,7 @@ void write_files_multi(uint16_t store_array[WIDTH][HEIGHT]){
 	rename("/dev/shm/framebuffer.tmp", "/dev/shm/framebuffer");
 }
 void read_files_multi(uint16_t store_array[WIDTH][HEIGHT]) {
-        rename("/dev/shm/framebuffer", "/dev/shm/framebuffer.reading"); //to hopefully prevent race conditions, by decreasing the chage of it happening.
-        char filename[] = "/dev/shm/framebuffer.reading";
+	char filename[] = "/dev/shm/framebuffer";
 	FILE *file = fopen(filename, "r"); //reads the binary data.
 	fread(store_array, sizeof(uint16_t), WIDTH*HEIGHT, file);
 	fclose(file);
@@ -43,7 +43,7 @@ int main (void){
 	uint16_t framebuffer[HEIGHT][WIDTH];
 	for(int y = 0; y < HEIGHT; y++){ //set framebuffer black
 		for(int x =0; x < WIDTH; x++){
-			framebuffer[y][x] = 0;
+			framebuffer[y][x] = 0x0000;
 		}
 	}
 	uint16_t framebuffer_drawn[HEIGHT][WIDTH];
@@ -55,8 +55,8 @@ int main (void){
         int fork_num = 0;
         int fork_state = 1;
 	write_files_multi(framebuffer); // ensures that if the display program starts to fast, it does not segfault
-	sleep_msec(1000); //prevent a segfault
         for (int i =0; i <NUMBER_OF_CHILDS; i ++){ //needed for fork
+			sleep_msec(100);
             	if (fork_state != 0){
                         fork_state = fork(); //the fork returns a number to the parent (or master, as later defined), an 0 to a child.
                         fork_num = fork_num + 1;
@@ -70,8 +70,12 @@ int main (void){
 	}
 	switch (fork_num){
 	case 0:
+		struct timespec start, start_button, end_button, end;
         	while(1){
+			clock_gettime(CLOCK_MONOTONIC, &start);
+			double elapsed_per_frame_expected = 0;
 			for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
+				clock_gettime(CLOCK_MONOTONIC, &start_button);
                 		memmove(&framebuffer[1][0], &framebuffer[0][0], (HEIGHT-1)*WIDTH*sizeof(uint16_t)); //move famebuffer from 0 to end, per row.
                 		memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t)); //set parial framebuffer.
                 		b0 = get_button_state(0); //selfexplenetary
@@ -81,9 +85,16 @@ int main (void){
                 		else if (b0 == 1){
                 	        		framebuffer[0][100] = 0xff00;
                 		}
+				clock_gettime(CLOCK_MONOTONIC, &end_button);
+				double elapsed_per_button = (end_button.tv_sec - start_button.tv_sec) + (end_button.tv_nsec - start_button.tv_nsec) / 1e9;
+				elapsed_per_frame_expected = elapsed_per_frame_expected + elapsed_per_button;
+				//printf("%s%i%s%lf%s%lf\n", "button state = ", b0, " and time since last check is: ", elapsed_per_button,"time per frame", elapsed_per_frame_expected);
 			}
 			memcpy(framebuffer_drawn, framebuffer, sizeof(framebuffer_drawn));
 			write_files_multi(framebuffer_drawn);
+			clock_gettime(CLOCK_MONOTONIC, &end);
+			double elapsed_per_frame = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+			printf("frame drawn expeted time was, %lf while the actual time : %lf\n", elapsed_per_frame_expected, elapsed_per_frame);
         	}
 		break;
 	case 1:
