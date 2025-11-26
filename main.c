@@ -16,7 +16,8 @@ void write_files_multi(uint16_t store_array[WIDTH][HEIGHT]){
 	rename("/dev/shm/framebuffer.tmp", "/dev/shm/framebuffer");
 }
 void read_files_multi(uint16_t store_array[WIDTH][HEIGHT]) {
-	char filename[] = "/dev/shm/framebuffer";
+        rename("/dev/shm/framebuffer", "/dev/shm/framebuffer.reading"); //to hopefully prevent race conditions, by decreasing the chage of it happening.
+        char filename[] = "/dev/shm/framebuffer.reading";
 	FILE *file = fopen(filename, "r"); //reads the binary data.
 	fread(store_array, sizeof(uint16_t), WIDTH*HEIGHT, file);
 	fclose(file);
@@ -54,8 +55,8 @@ int main (void){
         int fork_num = 0;
         int fork_state = 1;
 	write_files_multi(framebuffer); // ensures that if the display program starts to fast, it does not segfault
+	sleep_msec(1000); //prevent a segfault
         for (int i =0; i <NUMBER_OF_CHILDS; i ++){ //needed for fork
-			sleep_msec(100);
             	if (fork_state != 0){
                         fork_state = fork(); //the fork returns a number to the parent (or master, as later defined), an 0 to a child.
                         fork_num = fork_num + 1;
