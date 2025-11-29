@@ -48,14 +48,14 @@ int main (void){
 	}
 	uint16_t framebuffer_drawn[HEIGHT][WIDTH];
 	int b0 = 0;
-        pynq_init();
+	pynq_init();
 	gpio_init();
 	switches_init();
 	buttons_init();
-        int fork_num = 0;
-        int fork_state = 1;
+    int fork_num = 0;
+    int fork_state = 1;
 	write_files_multi(framebuffer); // ensures that if the display program starts to fast, it does not segfault
-        for (int i =0; i <NUMBER_OF_CHILDS; i ++){ //needed for fork
+    for (int i =0; i <NUMBER_OF_CHILDS; i ++){ //needed for fork
 			sleep_msec(100);
             	if (fork_state != 0){
                         fork_state = fork(); //the fork returns a number to the parent (or master, as later defined), an 0 to a child.
@@ -68,47 +68,49 @@ int main (void){
 	if (fork_state != 0){ //sets master branch to forknum 0, to prevent two forks running the same code.
 		fork_num = 0;
 	}
-	switch (fork_num){
-	case 0:
-		struct timespec start, start_button, end_button, end;
-        	while(1){
-			clock_gettime(CLOCK_MONOTONIC, &start);
-			double elapsed_per_frame_expected = 0;
-			for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
-				clock_gettime(CLOCK_MONOTONIC, &start_button);
-                		memmove(&framebuffer[1][0], &framebuffer[0][0], (HEIGHT-1)*WIDTH*sizeof(uint16_t)); //move famebuffer from 0 to end, per row.
-                		memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t)); //set parial framebuffer.
-                		b0 = get_button_state(0); //selfexplenetary
-                		if (b0 == 0){
-                		        	framebuffer[0][0] = 0xffff;
-                		}
-                		else if (b0 == 1){
-                	        		framebuffer[0][100] = 0xff00;
-                		}
-				clock_gettime(CLOCK_MONOTONIC, &end_button);
-				double elapsed_per_button = (end_button.tv_sec - start_button.tv_sec) + (end_button.tv_nsec - start_button.tv_nsec) / 1e9;
-				elapsed_per_frame_expected = elapsed_per_frame_expected + elapsed_per_button;
-				//printf("%s%i%s%lf%s%lf\n", "button state = ", b0, " and time since last check is: ", elapsed_per_button,"time per frame", elapsed_per_frame_expected);
+	switch (fork_num) {
+		case 0:
+			struct timespec start, start_button, end_button, end;
+			while(1){
+				clock_gettime(CLOCK_MONOTONIC, &start);
+				double elapsed_per_frame_expected = 0;
+				for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
+					clock_gettime(CLOCK_MONOTONIC, &start_button);
+					memmove(&framebuffer[1][0], &framebuffer[0][0], (HEIGHT-1)*WIDTH*sizeof(uint16_t)); //move famebuffer from 0 to end, per row.
+					memset(&framebuffer[0][0], 0, WIDTH*sizeof(uint16_t)); //set parial framebuffer.
+					b0 = get_button_state(0); //selfexplenetary
+					if (b0 == 0){
+						framebuffer[0][0] = 0xffff;
+					}
+					else if (b0 == 1){
+						framebuffer[0][100] = 0xff00;
+					}
+					clock_gettime(CLOCK_MONOTONIC, &end_button);
+					double elapsed_per_button = (end_button.tv_sec - start_button.tv_sec) + (end_button.tv_nsec - start_button.tv_nsec) / 1e9;
+					elapsed_per_frame_expected = elapsed_per_frame_expected + elapsed_per_button;
+					//printf("%s%i%s%lf%s%lf\n", "button state = ", b0, " and time since last check is: ", elapsed_per_button,"time per frame", elapsed_per_frame_expected);
+				}
+				memcpy(framebuffer_drawn, framebuffer, sizeof(framebuffer_drawn));
+				write_files_multi(framebuffer_drawn);
+				clock_gettime(CLOCK_MONOTONIC, &end);
+				double elapsed_per_frame = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+				printf("frame drawn expected time was, %lf while the actual time : %lf\n", elapsed_per_frame_expected, elapsed_per_frame);
 			}
-			memcpy(framebuffer_drawn, framebuffer, sizeof(framebuffer_drawn));
-			write_files_multi(framebuffer_drawn);
-			clock_gettime(CLOCK_MONOTONIC, &end);
-			double elapsed_per_frame = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
-			printf("frame drawn expeted time was, %lf while the actual time : %lf\n", elapsed_per_frame_expected, elapsed_per_frame);
-        	}
-		break;
-	case 1:
-		display_t display;
-		display_init(&display);
-		while(1){
-			read_files_multi(framebuffer_drawn);
-	                display_flush(&display, (uint16_t*)framebuffer_drawn);
-        	}
-		display_destroy(&display);
-		break;
+			break;
+        case 1:
+			display_t display;
+			display_init(&display);
+			while(1){
+				read_files_multi(framebuffer_drawn);
+				display_flush(&display, (uint16_t*)framebuffer_drawn);
+			}
+			display_destroy(&display);
+			break;
+        default:
+			_Exit(1);
+			break;
 	}
 	buttons_destroy();
 	switches_destroy();
 	pynq_destroy();
 }
-
