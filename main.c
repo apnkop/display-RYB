@@ -100,22 +100,24 @@ int main (void){
 		case 0:
         	while(1){
 				for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
-					memmove(&graphbuffer[1][0], &graphbuffer[0][0], (HEIGHT_GRAPH-1)*WIDTH_GRAPH*sizeof(uint16_t));
-		                //move graph buffer from 0 to end, per row.
-                	memset(&graphbuffer[0][0], 0, WIDTH_GRAPH*sizeof(uint16_t)); //set line 0 of the graph to black, for coloring later
+					for (int y = 0; y < HEIGHT_GRAPH; y++) {
+						// Shift row y left by 1 column: Source is column 1, Destination is column 0
+						memmove(&graphbuffer[y][0], &graphbuffer[y][1], (WIDTH_GRAPH-1)*sizeof(uint16_t));
+						// Clear the last column (the new data point column)
+						graphbuffer[y][WIDTH_GRAPH-1] = 0;
+					}
                 	b0 = get_button_state(0); //selfexplenetary
                 	if (b0 == 0){
                 		graphbuffer[0][0] = 0xffff;
                 	}
                 	else if (b0 == 1){
-                		graphbuffer[0][99] = 0xff00; // this is just for testing
+                		graphbuffer[0][100] = 0xff00; // this is just for testing
                 	}
 				}
-        	for (int y = 0; y < HEIGHT; y++) {
-        		if (y < HEIGHT_GRAPH && y >= 0) {
-        			memmove(&framebuffer[y+140][139], &graphbuffer[y][0], WIDTH_GRAPH*sizeof(uint16_t)); //these numbers will be replaced by enums later. now I will first implement other features.
+
+        		for (int y = 0; y < HEIGHT_GRAPH; y++) {
+        			memcpy(&framebuffer[90+y][90], &graphbuffer[y][0], WIDTH_GRAPH*sizeof(uint16_t));
         		}
-        	}
 			memcpy(framebuffer_drawn, framebuffer, sizeof(framebuffer_drawn));
 			write_files_multi(framebuffer_drawn);
         	}
