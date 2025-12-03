@@ -100,19 +100,25 @@ int main (void){
 		case 0:
         	while(1){
 				for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
-					for (int y = 0; y < HEIGHT_GRAPH; y++) {
-						// Shift row y left by 1 column: Source is column 1, Destination is column 0
-						memmove(&graphbuffer[y][0], &graphbuffer[y][1], (WIDTH_GRAPH-1)*sizeof(uint16_t));
-						// Clear the last column (the new data point column)
-						graphbuffer[y][WIDTH_GRAPH-1] = 0;
+					for (int x = 1; x < WIDTH_GRAPH; x++) {
+						//sleep_msec(1);
+						b0=get_button_state(0);
+						if (b0 == 0) {
+							graphbuffer[1][x] = 0xff00;
+							graphbuffer[99][x] =0;
+						}
+						else if (b0 == 1) {
+							graphbuffer[99][x] = 0xffff;
+							graphbuffer[1][x] = 0;
+						}
 					}
-                	b0 = get_button_state(0); //selfexplenetary
-                	if (b0 == 0){
+					//memset(&graphbuffer[99][0], 0xff, WIDTH_GRAPH*sizeof(uint16_t));
+                	/*if (b0 == 0){
                 		graphbuffer[0][0] = 0xffff;
                 	}
                 	else if (b0 == 1){
-                		graphbuffer[0][100] = 0xff00; // this is just for testing
-                	}
+                		graphbuffer[0][99] = 0xff00; // this is just for testing
+                	}*/
 				}
 
         		for (int y = 0; y < HEIGHT_GRAPH; y++) {
