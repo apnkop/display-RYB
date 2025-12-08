@@ -18,9 +18,7 @@
     <option name="reloaded" value="true" />
   </component>
   <component name="CMakeRunConfigurationManager">
-    <generated>
-      <config projectName="display_RYB" targetName="display_RYB" />
-    </generated>
+    <generated />
   </component>
   <component name="CMakeSettings">
     <configurations>
@@ -28,12 +26,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="21ea4f0d-c427-4a0b-b749-33fa2c676915" name="Changes" comment="update fotn lib, and include font file, not tested on pynq">
-      <change afterPath="$PROJECT_DIR$/disply-test-on-cli/clitest.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/disply-test-on-cli/font.uint16" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="21ea4f0d-c427-4a0b-b749-33fa2c676915" name="Changes" comment="improve font, it now sort of works, neet to figure out flipping. and made an display emulator sort of in cli for faster testing." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,7 +39,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="not-yet-tested" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -77,46 +70,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "C/C++ File.clitest.c.executor": "Run",
-    "C/C++ File.font-test.c.executor": "Run",
-    "CMake Application.display_RYB.executor": "Run",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.west.config.association.type.startup.service": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "not-yet-tested",
-    "last_opened_file_path": "/home/onno/coding/pynq/display-RYB/disply-test-on-cli",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;C/C++ File.clitest.c.executor&quot;: &quot;Run&quot;,
+    &quot;C/C++ File.font-test.c.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.display_RYB.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/onno/coding/pynq/display-RYB/disply-test-on-cli&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/disply-test-on-cli" />
     </key>
   </component>
   <component name="RunManager" selected="C/C++ File.clitest.c">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="display_RYB" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="display_RYB" TARGET_NAME="display_RYB" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="display_RYB" RUN_TARGET_NAME="display_RYB">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="clitest.c" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="display_RYB" TARGET_NAME="clitest.c" CONFIG_NAME="clitest.c">
       <option name="sourceFile" value="disply-test-on-cli/clitest.c" />
       <method v="2">
@@ -132,7 +114,6 @@
     <list>
       <item itemvalue="C/C++ File.clitest.c" />
       <item itemvalue="C/C++ File.font-test.c" />
-      <item itemvalue="CMake Application.display_RYB" />
     </list>
     <recent_temporary>
       <list>
@@ -157,7 +138,7 @@
       <workItem from="1764783001290" duration="1340000" />
       <workItem from="1764838256706" duration="599000" />
       <workItem from="1765180852792" duration="15233000" />
-      <workItem from="1765199043015" duration="10989000" />
+      <workItem from="1765199043015" duration="11321000" />
     </task>
     <task id="LOCAL-00001" summary="updating to a working version">
       <option name="closed" value="true" />
@@ -183,7 +164,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765191229250</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="improve font, it now sort of works, neet to figure out flipping. and made an display emulator sort of in cli for faster testing.">
+      <option name="closed" value="true" />
+      <created>1765228334885</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1765228334885</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +186,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="updating to a working version" />
     <MESSAGE value="update fotn lib, and include font file, not tested on pynq" />
-    <option name="LAST_COMMIT_MESSAGE" value="update fotn lib, and include font file, not tested on pynq" />
+    <MESSAGE value="improve font, it now sort of works, neet to figure out flipping. and made an display emulator sort of in cli for faster testing." />
+    <option name="LAST_COMMIT_MESSAGE" value="improve font, it now sort of works, neet to figure out flipping. and made an display emulator sort of in cli for faster testing." />
   </component>
 </project>
