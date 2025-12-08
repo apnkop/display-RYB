@@ -69,10 +69,10 @@ int main (void){
 		}
 	}
 	for (int k =0; k<240; k++) {
-		framebuffer[139][k] = 0xff00;
+		framebuffer[90][k] = 0xff00;
 	}
 	for (int k =0; k <240; k++) {
-		framebuffer[k][138] = 0xff00;
+		framebuffer[k][90] = 0xff00;
 	}
 	uint16_t framebuffer_drawn[HEIGHT][WIDTH];
 	int b0 = 0;

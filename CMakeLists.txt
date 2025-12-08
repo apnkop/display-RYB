@@ -11,4 +11,5 @@ add_executable(display_RYB
         time_test_version/speed-file.c
         time_test_version/speed-pipe.c
         GenerateRawFiles.c
-        main.c)
+        main.c
+        fonts/font-test.c)
