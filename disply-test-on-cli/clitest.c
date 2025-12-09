@@ -55,6 +55,23 @@ void init_fond(uint16_t fontarray[128][WIDTH_CHAR][HEIGHT_CHAR]) {
 	}
 	fclose(file);
 }
+void flip_font(uint16_t fontarray[128][WIDTH_CHAR][HEIGHT_CHAR]) {
+	uint16_t fontarray2[128][WIDTH_CHAR][HEIGHT_CHAR];
+	for (uint8_t c = 0; c < 128; c++) {
+		for (int x = 0; x < WIDTH_CHAR; x++) {
+			for (int y = 0; y < HEIGHT_CHAR; y++) {
+				fontarray2[c][x][y] = fontarray[c][x][y];
+			}
+		}
+	}
+	for (uint8_t c = 0; c < 128; c++) {
+		for (uint8_t x = 0; x < WIDTH_CHAR; x++) {
+			for (uint8_t y = 0; y < HEIGHT_CHAR; y++) {
+				fontarray[c][y][WIDTH_CHAR - 1 - x] = fontarray2[c][x][y];
+			}
+		}
+	}
+}
 void write_font(uint16_t fontarray[128][WIDTH_CHAR][HEIGHT_CHAR], const char string[1024], uint8_t x, uint8_t y, uint16_t string_buffer[x][y]){ //curently string length can't be longer than x_length/8
 	printf("string started\n");
 	uint8_t max_char_numbers = x / WIDTH_CHAR;
@@ -103,6 +120,7 @@ int main (void) {
 	int direction = 1;
 	uint16_t fontarray[128][WIDTH_CHAR][HEIGHT_CHAR];
 	init_fond(fontarray);
+	flip_font(fontarray);
 	uint16_t framebuffer[WIDTH][HEIGHT];
 	const char string_1[] = {"3.3V"};
 	uint16_t string_1_buffer[32][10] = {0};
@@ -143,7 +161,7 @@ int main (void) {
 	}
 	switch (fork_num){
 		case 1:
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 1; i++) {
 				for (int k = 0; k <NUMBER_OF_MOVES_PER_FRAME; k++){
 					if (b0 <99 && direction == 1) {
 						b0 = b0+1;
