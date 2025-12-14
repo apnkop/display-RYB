@@ -13,4 +13,5 @@ add_executable(display_RYB
         GenerateRawFiles.c
         main.c
         fonts/font-test.c
-        disply-test-on-cli/clitest.c)
+        disply-test-on-cli/clitest.c
+        calloc_version/clitest_v2.c)
