@@ -107,7 +107,7 @@ void write_font(uint16_t fontarray[128*(WIDTH_CHAR*HEIGHT_CHAR)], const char str
 		if (string[c] != 0) {
 			for (uint8_t x_space = 0; x_space < WIDTH_CHAR; x_space++) {
 				x_cooridinate = (c*WIDTH_CHAR) + x_space;
-				memmove(&text_buffer[(x_cooridinate*y) + 1], &fontarray[string[c]* (WIDTH_CHAR * HEIGHT_CHAR) + (x_space * HEIGHT_CHAR) + 0], HEIGHT_CHAR * sizeof(uint16_t));
+				memmove(&text_buffer[(x_cooridinate*y) + 2], &fontarray[string[c]* (WIDTH_CHAR * HEIGHT_CHAR) + (x_space * HEIGHT_CHAR) + 0], HEIGHT_CHAR * sizeof(uint16_t));
 				printf("%i%-12i\n", c, x_space);
 			}
 		}
@@ -119,6 +119,7 @@ void write_font(uint16_t fontarray[128*(WIDTH_CHAR*HEIGHT_CHAR)], const char str
 }
 void master(void) {
 	uint8_t success_memory_alloc = 0;
+	uint8_t memory_allocation_tries = 0;
 	uint16_t *framebuffer = NULL;
 	uint16_t *framebuffer_drawn = NULL;
 	uint16_t *font = NULL;
@@ -130,6 +131,7 @@ void master(void) {
 	uint8_t *graph_data = NULL;
 	const char string_1[] = {"3.3V"};
 	while (success_memory_alloc != MEMORY_ALLOCATIONS) {
+		memory_allocation_tries++;
 		success_memory_alloc = 0;
 		if (framebuffer == NULL) {
 			framebuffer = calloc(WIDTH * HEIGHT, sizeof(uint16_t));
@@ -185,6 +187,13 @@ void master(void) {
 		else {
 			success_memory_alloc = success_memory_alloc + 1;
 		}
+		if (success_memory_alloc != MEMORY_ALLOCATIONS) {
+			usleep(1000);
+		}
+		if (success_memory_alloc != MEMORY_ALLOCATIONS && memory_allocation_tries > 4) {
+			printf("Memory allocation timed out\n");
+			_Exit(1);
+		}
 	}
 	init_fond(font, font90, font180, font270);
 	write_font(font90, string_1, 32, 10, text_buffer1);
@@ -223,14 +232,14 @@ void master(void) {
 				//nothing yet
 			}
 			else if (x >= 56 && x < 88) {
-				if (y >= 229 && y < 240) {
-					memmove(&PIXEL(x, y), &text_buffer1[(x-56)*(HEIGHT_CHAR+2)], HEIGHT_CHAR * sizeof(uint16_t));
+				if (y >= 230 && y < HEIGHT) {
+					memcpy(&PIXEL(x, y), &text_buffer1[(x-56)*(HEIGHT_CHAR+2)], HEIGHT_CHAR * sizeof(uint16_t));
 					y = y + HEIGHT_CHAR + 2;
 				}
 			}
-			else if (x >= 89 && x < 240) {
-				if (y >= 139 && y < 240) {
-					memmove(&PIXEL(x, y), &graphbuffer[(x-89)*(HEIGHT_GRAPH)], HEIGHT_GRAPH * sizeof(uint16_t));
+			else if (x >= 90) {
+				if (y >= 139){
+					memcpy(&PIXEL(x, y), &graphbuffer[(x-89)*(HEIGHT_GRAPH)], HEIGHT_GRAPH * sizeof(uint16_t));
 					y = y + HEIGHT_GRAPH;
 				}
 			}
