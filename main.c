@@ -95,111 +95,11 @@ void displayDrawMultiPixelsv2(display_t *display, uint16_t x, uint16_t y, uint16
 void display_flush(display_t *d, uint16_t *fb){
 	displayDrawMultiPixelsv2(d, 0, 0, WIDTH, HEIGHT, fb);
 }
-void write_font(uint16_t fontarray[128*(WIDTH_CHAR*HEIGHT_CHAR)], uint8_t length_string, const char string[length_string], uint8_t x, uint8_t y, uint16_t text_buffer[x*y]){ //curently string length can't be longer than x_length/8
-	uint8_t max_char_numbers = x / WIDTH_CHAR;
-	for (uint8_t c = 0; c < max_char_numbers; c++) {
-		uint8_t x_cooridinate = 0;
-		if (string[c] != 0) {
-			for (uint8_t x_space = 0; x_space < WIDTH_CHAR; x_space++) {
-				x_cooridinate = (c*WIDTH_CHAR) + x_space;
-				memmove(&text_buffer[(x_cooridinate*y) + 1], &fontarray[string[c]* (WIDTH_CHAR * HEIGHT_CHAR) + (x_space * HEIGHT_CHAR) + 0], HEIGHT_CHAR * sizeof(uint16_t));
-			}
-		}
-		else {
-			c = max_char_numbers;
-		}
-	}
-	for (int i = 0; i < x*y; i++) {
-		if (text_buffer[i] != 0) {
-			text_buffer[i] = 0xffff;
-		}
-	}
-}
-void master(void) {
-	uint8_t success_memory_alloc = 0;
-	uint8_t memory_allocation_tries = 0;
-	uint16_t *framebuffer = NULL;
-	uint16_t *framebuffer_drawn = NULL;
-	uint16_t *font = NULL;
-	uint16_t *font90 = NULL;
-	uint16_t *font180 = NULL;
-	uint16_t *font270 = NULL;
-	uint16_t *text_buffer1 = NULL;
-	uint16_t *graphbuffer = NULL;
-	uint8_t *graph_data = NULL;
-	const char string_1[] = {"3.3V"};
-	while (success_memory_alloc != MEMORY_ALLOCATIONS) {
-		memory_allocation_tries++;
-		success_memory_alloc = 0;
-		if (framebuffer == NULL) {
-			framebuffer = calloc(WIDTH * HEIGHT, sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (framebuffer_drawn == NULL) {
-			framebuffer_drawn = calloc(WIDTH * HEIGHT, sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (font == NULL) {
-			font = calloc(128 * (WIDTH_CHAR * HEIGHT_CHAR), sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (font90 == NULL) {
-			font90 = calloc(128 * (WIDTH_CHAR * HEIGHT_CHAR), sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (font180 == NULL) {
-			font180 = calloc(128 * (WIDTH_CHAR * HEIGHT_CHAR), sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (font270 == NULL) {
-			font270 = calloc(128 * (WIDTH_CHAR * HEIGHT_CHAR), sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (text_buffer1 == NULL) {
-			text_buffer1 = calloc(32*10, sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (graphbuffer == NULL) {
-			graphbuffer = calloc(WIDTH_GRAPH * HEIGHT_GRAPH, sizeof(uint16_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (graph_data == NULL) {
-			graph_data = calloc(WIDTH_GRAPH, sizeof(uint8_t));
-		}
-		else {
-			success_memory_alloc = success_memory_alloc + 1;
-		}
-		if (success_memory_alloc != MEMORY_ALLOCATIONS) {
-			usleep(1000);
-		}
-		if (success_memory_alloc != MEMORY_ALLOCATIONS && memory_allocation_tries > 4) {
-			printf("Memory allocation timed out\n");
-			_Exit(1);
-		}
-	}
-	init_fond(font, font90, font180, font270);
-	write_font(font90, (sizeof(string_1)/sizeof(string_1[0])), string_1, 32, 10, text_buffer1);
-	for (int x = 0; x < WIDTH; x++) {
-		for (int y = 0; y < HEIGHT; y++) {
-			if (x == 89 || y == 89) {
-				PIXEL(x, y) = 0x0fff;
-			}
+int main (void){
+	uint16_t framebuffer[HEIGHT][WIDTH];
+	for(int y = 0; y < HEIGHT; y++){ //set framebuffer black
+		for(int x =0; x < WIDTH; x++){
+			framebuffer[y][x] = 0;
 		}
 	}
 	int b0 = 0;
