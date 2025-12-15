@@ -14,4 +14,5 @@ add_executable(display_RYB
         main.c
         fonts/font-test.c
         disply-test-on-cli/clitest.c
-        calloc_version/clitest_v2.c)
+        calloc_version/clitest_v2.c
+        old/main.old.c)
